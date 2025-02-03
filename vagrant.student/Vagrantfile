@@ -1,0 +1,83 @@
+# coding: utf-8
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  #####################################################################
+  #
+  # Opciones GLOBALES
+  #
+  #####################################################################
+  
+  config.vm.box = "debian/bullseye64"
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "256"
+    vb.linked_clone = true
+  end # virtualbox
+
+  # Actualizar SO
+  config.vm.provision "update", type:"shell", inline: <<-SHELL
+    apt-get update 
+  SHELL
+
+  #####################################################################
+  #
+  # Servidor 'atlas'
+  #
+  #####################################################################
+  
+  config.vm.define "atlas" do |atlas|
+    # Poner nombre de hosts
+    atlas.vm.hostname = "atlas"
+
+    # Tarjeta en red interna de atlas
+    atlas.vm.network "private_network", ip: "192.168.57.2"
+    
+    # Instalar bind9
+    atlas.vm.provision "bind9-install", type:"shell", inline: <<-SHELL
+        apt-get install -y bind9 bind9-utils bind9-doc
+    SHELL
+
+    # Copiar ficheros configuración 
+    atlas.vm.provision "config", type:"shell", inline: <<-SHELL
+      cp -v /vagrant/resolv.conf /etc/
+      cp -v /vagrant/named.conf.local.atlas /etc/bind/named.conf.local
+      cp -v /vagrant/named.conf.options /etc/bind/named.conf.options
+      cp -v /vagrant/olimpo.test.dns /etc/bind/olimpo.test.dns
+      cp -v /vagrant/192.168.57.dns /etc/bind/192.168.57.dns
+      systemctl restart bind9
+      systemctl status bind9
+    SHELL
+  end # servidor
+
+  #####################################################################
+  #
+  # Servidor 'ceo'
+  #
+  #####################################################################
+  
+  config.vm.define "ceo" do |ceo|
+    # Poner nombre de host
+    ceo.vm.hostname = "ceo"
+
+    # Tarjeta en red interna de ceo
+    ceo.vm.network "private_network", ip: "192.168.57.3"
+    
+    # Instalar bind9
+    ceo.vm.provision "bind9-install", type:"shell", inline: <<-SHELL
+        apt-get install -y bind9 bind9-utils bind9-doc
+    SHELL
+
+    # Copiar ficheros configuración 
+    ceo.vm.provision "config", type:"shell", inline: <<-SHELL
+      cp -v /vagrant/resolv.conf /etc/
+      cp -v /vagrant/named.conf.local.ceo /etc/bind/named.conf.local
+      cp -v /vagrant/named.conf.options /etc/bind/named.conf.options
+      systemctl restart bind9
+      systemctl status bind9
+    SHELL
+  end # servidor
+
+end # Configure

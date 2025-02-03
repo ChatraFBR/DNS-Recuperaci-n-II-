@@ -1,0 +1,18 @@
+;
+; 57.168.192.in-addr.arpa
+;
+$TTL    86400
+@       IN      SOA     atlas. hefestos@olimpo.test. (
+                        1          ; Serial
+                        1200       ; Refresh (20 minutos)
+                        900        ; Retry (15 minutos)
+                        2419200    ; Expire
+                        604800 )   ; Negative Cache TTL
+;
+@       IN      NS      atlas
+        IN      NS      ceo
+2       IN      PTR     atlas.olimpo.test.
+3       IN      PTR     ceo.olimpo.test.
+4       IN      PTR     atenea.olimpo.test.
+5       IN      PTR     mercurio.olimpo.test.
+6       IN      PTR     ares.olimpo.test.
